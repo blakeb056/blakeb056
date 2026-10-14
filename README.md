@@ -51,8 +51,8 @@ Official **Snapchat Lens Partner since 2018** — 450M+ lens views, featured at 
 ### 📊 Stats
 
 <p align="center">
-  <img height="165" src="https://github-readme-stats.vercel.app/api?username=blakeb056&show_icons=true&include_all_commits=true&hide_border=true&bg_color=000000&title_color=00fcfd&icon_color=d450ff&text_color=c9d1d9" alt="GitHub stats">
-  <img height="165" src="https://streak-stats.demolab.com?user=blakeb056&hide_border=true&background=000000&ring=00fcfd&fire=d450ff&currStreakLabel=00fcfd&sideLabels=c9d1d9&currStreakNum=ffffff&sideNums=ffffff&dates=8b949e" alt="Contribution streak">
+  <img height="165" src="https://github-readme-stats.vercel.app/api?username=blakeb056&show_icons=true&include_all_commits=true&hide=stars,issues&disable_animations=true&hide_border=true&bg_color=000000&title_color=00fcfd&icon_color=d450ff&text_color=c9d1d9" alt="GitHub stats">
+  <img height="165" src="https://streak-stats.demolab.com?user=blakeb056&disable_animations=true&hide_border=true&background=000000&ring=00fcfd&fire=d450ff&currStreakLabel=00fcfd&sideLabels=c9d1d9&currStreakNum=ffffff&sideNums=ffffff&dates=8b949e" alt="Contribution streak">
 </p>
 
 <p align="center">
