@@ -20,14 +20,16 @@
 
 ### 🛠️ Things I've shipped
 
-| | Project | What it does |
-|---|---|---|
-| 🌌 | **[Sixgree](https://sixgree.com)** · [source](https://github.com/blakeb056/six-degrees) | Your professional network as a galaxy. Free, open-source desktop app — find the bridges into other circles and trace warm paths. Your data never leaves your computer. |
-| ⏭️ | **[Sponskip](https://sponskip.com)** · [source](https://github.com/sponskip/sponskip) | Chrome extension that jumps past sponsor reads on YouTube, including the ones creators disguise. Runs entirely in the browser. |
-| 📞 | **[Comsly](https://comsly.io)** | Screens unknown callers, takes messages in your own cloned voice, and makes the calls you'd rather avoid. |
-| 🎹 | **[TRIAD](https://triad-opal.vercel.app)** | Plug a MIDI controller into the browser and it becomes three synths. Web MIDI + Web Audio, nothing to install. |
-| 📻 | **[Sky Dial](https://skydial-pi.vercel.app)** | Spin the globe; whatever radio or TV station is under the reticle is on the air. |
-| 🚨 | **[Distress](https://distress-globe.vercel.app)** | Live police, fire and 911 dispatch from public agency feeds, on one globe. |
+<p align="center">
+<a href="https://sixgree.com"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/sixgree-dark.svg"><img width="49%" alt="Sixgree: Your professional network as a galaxy. Find the bridges into other circles and trace warm paths. Data stays on your computer." src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/sixgree.svg"></picture></a>
+<a href="https://sponskip.com"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/sponskip-dark.svg"><img width="49%" alt="Sponskip: Skips the sponsor reads on YouTube, including the ones creators disguise. Runs entirely in your browser." src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/sponskip.svg"></picture></a>
+<a href="https://comsly.io"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/comsly-dark.svg"><img width="49%" alt="Comsly: The AI that answers your phone, screens callers in your own voice, and makes the calls you'd rather avoid." src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/comsly.svg"></picture></a>
+<a href="https://triad-opal.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/triad-dark.svg"><img width="49%" alt="TRIAD: Plug a MIDI controller into the browser and it becomes three synths. Nothing to install." src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/triad.svg"></picture></a>
+<a href="https://skydial-pi.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/skydial-dark.svg"><img width="49%" alt="Sky Dial: Spin the world. Whatever radio or TV station sits under the dial is on the air." src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/skydial.svg"></picture></a>
+<a href="https://distress-globe.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/distress-dark.svg"><img width="49%" alt="Distress: Live police, fire and 911 dispatch from public agency feeds, on one globe." src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/distress.svg"></picture></a>
+</p>
+
+<sub>Source: <a href="https://github.com/blakeb056/six-degrees">Sixgree</a> · <a href="https://github.com/sponskip/sponskip">Sponskip</a></sub>
 
 ### 👻 AR
 
@@ -48,16 +50,12 @@ Official **Snapchat Lens Partner since 2018** — 450M+ lens views, featured at 
   <img src="https://img.shields.io/badge/Claude-000000?style=flat-square&logo=anthropic&logoColor=D97757" alt="Claude">
 </p>
 
-### 📊 Stats
+### 📊 This year
 
 <p align="center">
-  <img height="165" src="https://github-readme-stats.vercel.app/api?username=blakeb056&show_icons=true&include_all_commits=true&hide=stars,issues&disable_animations=true&hide_border=true&bg_color=000000&title_color=00fcfd&icon_color=d450ff&text_color=c9d1d9" alt="GitHub stats">
-  <img height="165" src="https://streak-stats.demolab.com?user=blakeb056&disable_animations=true&hide_border=true&background=000000&ring=00fcfd&fire=d450ff&currStreakLabel=00fcfd&sideLabels=c9d1d9&currStreakNum=ffffff&sideNums=ffffff&dates=8b949e" alt="Contribution streak">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/stats-dark.svg"><img alt="Contributions in the last year, streaks, best day and pull requests" src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/stats.svg"></picture>
 </p>
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/dog-dark.svg">
-    <img alt="A dog trots across my contribution graph, waters it, and the squares behind him bloom green" src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/dog.svg">
-  </picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/dog-dark.svg"><img alt="My contribution graph starts grey; a black goldendoodle trots in, waters it, and the year's green spreads out from his puddle" src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/dog.svg"></picture>
 </p>

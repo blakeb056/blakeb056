@@ -1,4 +1,4 @@
-name: Contribution dog
+name: Profile images
 
 on:
   schedule:
@@ -21,8 +21,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Draw the dog over this year's contributions
-        run: node scripts/dog.mjs "${{ github.repository_owner }}"
+      - name: Build the profile images
+        run: node scripts/build.mjs "${{ github.repository_owner }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
