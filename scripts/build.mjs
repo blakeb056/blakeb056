@@ -70,18 +70,18 @@ const privatePct = total ? Math.round((cc.restrictedContributionsCount / total) 
 const weekly = weeks.map((w) => w.contributionDays.reduce((s, d) => s + d.contributionCount, 0));
 
 // ---- the dog ----------------------------------------------------------------
-const CELL = 12, PITCH = 15, PAD = 20;
+const CELL = 14, PITCH = 18, PAD = 20;
 const COLS = weeks.length;
 const GRID_W = COLS * PITCH - (PITCH - CELL);
 const GRID_BOTTOM = PAD + 7 * PITCH - (PITCH - CELL);
-const S = 1.9;                                   // dog scale
-const GROUND = GRID_BOTTOM + 96;
-const W = GRID_W + PAD * 2, H = GROUND + 14;
+const S = 2.0;                                   // dog scale (~108px tall: fits the 7 rows)
+const GROUND = GRID_BOTTOM - 2;                  // feet on the bottom row: he walks on the graph
+const W = GRID_W + PAD * 2, H = GRID_BOTTOM + PAD;
 const T = 16;
 
 const STOP_X = PAD + Math.round(COLS * 0.55) * PITCH;
 const IN_END = 0.2, PEE_A = 0.24, PEE_B = 0.36, OUT_A = 0.4, OUT_B = 0.62;
-const START_X = -130, END_X = W + 30;
+const START_X = -125, END_X = W + 10;
 const IMPACT_X = STOP_X - 24 * S;
 const IMPACT_COL = Math.max(0, Math.min(COLS - 1, Math.round((IMPACT_X - PAD) / PITCH)));
 const pct = (u) => `${(u * 100).toFixed(3)}%`;
@@ -187,7 +187,7 @@ ${legKeyframes("lb", Math.PI)}
 <style>${css}</style>
 ${cells}
 ${reveal}
-<ellipse class="puddle" cx="${IMPACT_X}" cy="${GROUND - 1}" rx="${17 * S}" ry="${3.2 * S}" fill="${th.grid[4]}"/>
+<ellipse class="puddle" cx="${IMPACT_X}" cy="${GROUND - 5}" rx="${15 * S}" ry="${3.4 * S}" fill="${th.grid[4]}"/>
 ${dog}
 </svg>`;
 }
