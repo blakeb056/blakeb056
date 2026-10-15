@@ -57,7 +57,7 @@ Official **Snapchat Lens Partner since 2018** — 450M+ lens views, featured at 
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/github-snake-dark.svg">
-    <img alt="My contributions, eaten by a snake" src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/github-snake.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/dog-dark.svg">
+    <img alt="A dog trots across my contribution graph, waters it, and the squares behind him bloom green" src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/dog.svg">
   </picture>
 </p>
