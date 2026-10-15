@@ -1,7 +1,7 @@
 // Builds every image on the profile, in light and dark:
-//   dist/dog(-dark).svg        — a black goldendoodle trots in, waters the
-//                                (grey) contribution graph, and the real green
-//                                spreads out from his puddle across the year
+//   dist/dog(-dark).svg        — a pixel goldendoodle walks to each patch of
+//                                green on the (grey) graph and waters it; only
+//                                that patch's real squares light up
 //   dist/stats(-dark).svg      — this year's numbers, drawn, not boxed
 //   dist/cards/<slug>(-dark).svg — one card per shipped project
 // Pure SVG + CSS keyframes so everything animates inside a README <img>.
@@ -80,18 +80,63 @@ const COLS = weeks.length;
 const GRID_W = COLS * PITCH - (PITCH - CELL);
 const GRID_BOTTOM = PAD + 7 * PITCH - (PITCH - CELL);
 const W = GRID_W + PAD * 2, H = GRID_BOTTOM + PAD;
-const T = 16;
 
 const PX = 3.6;                                  // one sprite pixel, in SVG units
 const SPR_W = 40, SPR_H = 30;                    // sprite raster; feet on row 29
 const TOP = GRID_BOTTOM - SPR_H * PX + 2;        // he stands on the bottom row of the graph
 
-const STOP_X = PAD + Math.round(COLS * 0.55) * PITCH;
-const IN_END = 0.2, PEE_A = 0.24, PEE_B = 0.36, OUT_A = 0.4, OUT_B = 0.62;
+// ---- route: one stop per patch of green --------------------------------------
+// Weeks with any contributions, merged into one patch when separated by at most
+// MERGE_GAP empty weeks. He walks to each patch in turn, stops, pees, and only
+// that patch's real green squares light up. Empty squares never change.
+const MERGE_GAP = 0, MAX_STOPS = 3;
+const greenCols = weeks.map((w) => w.contributionDays.some((d) => level(d.contributionCount) > 0));
+let patches = [];
+greenCols.forEach((g, x) => {
+  if (!g) return;
+  const last = patches[patches.length - 1];
+  if (last && x - last.to <= MERGE_GAP + 1) last.to = x;
+  else patches.push({ from: x, to: x });
+});
+while (patches.length > MAX_STOPS) {          // too many stops: merge the closest pair
+  let bi = 0, bg = Infinity;
+  for (let i = 0; i < patches.length - 1; i++) {
+    const g = patches[i + 1].from - patches[i].to;
+    if (g < bg) { bg = g; bi = i; }
+  }
+  patches.splice(bi, 2, { from: patches[bi].from, to: patches[bi + 1].to });
+}
+// He stands over the bulk of each patch (mean column of its green squares).
+patches = patches.map((pt) => {
+  let sum = 0, n = 0;
+  for (let x = pt.from; x <= pt.to; x++)
+    for (const d of weeks[x].contributionDays) if (level(d.contributionCount) > 0) { sum += x; n++; }
+  const col = n ? sum / n : (pt.from + pt.to) / 2;
+  const impactPx = PAD + col * PITCH + CELL / 2;
+  // The stream lands 2 sprite px behind him; keep his whole body inside the graph.
+  return { ...pt, col, dogX: Math.min(impactPx + 2 * PX, W - PAD / 2 - SPR_W * PX) };
+});
+
+const SPEED = 190;                  // px/s while walking
+const STAND = 2.4, LIFT_A = 0.35, LIFT_B = 1.95; // seconds at a stop; leg up between A and B
+const HOLD = 2.6;                   // the whole year lit, after he trots off
 const START_X = -SPR_W * PX - 10, END_X = W + 10;
-const IMPACT_X = STOP_X - 3 * PX;
-const IMPACT_COL = Math.max(0, Math.min(COLS - 1, Math.round((IMPACT_X - PAD) / PITCH)));
+const route = [];
+{
+  let t = 0, x = START_X;
+  patches.forEach((pt, i) => {
+    const dur = Math.abs(pt.dogX - x) / SPEED;
+    route.push({ t0: t, t1: t + dur, x0: x, kind: "walk" }); t += dur; x = pt.dogX;
+    route.push({ t0: t, t1: t + STAND, x0: x, kind: "stop", patch: i }); t += STAND;
+  });
+  const dur = Math.abs(END_X - x) / SPEED;
+  route.push({ t0: t, t1: t + dur, x0: x, kind: "walk" }); t += dur;
+  route.push({ t0: t, t1: t + HOLD, x0: END_X, kind: "off" }); t += HOLD;
+}
+const T = route[route.length - 1].t1;
+const stops = route.filter((r) => r.kind === "stop");
 const pct = (u) => `${(u * 100).toFixed(3)}%`;
+const at = (sec) => pct(Math.min(1, Math.max(0, sec / T)));
 
 const PAL = {
   K: "#141416", D: "#2b2b30", G: "#4a4b52", L: "#74767e", S: "#a3a5ad",
@@ -215,16 +260,17 @@ const POSES = {
 
 // Which leg frame shows when, over one loop.
 function poseAt(u) {
-  if (u >= PEE_A && u <= PEE_B) return "lift";
-  const walking = (u >= 0 && u <= IN_END) || (u >= OUT_A && u <= OUT_B);
-  if (!walking) return "stand";
-  return Math.floor((u * T) / 0.16) % 2 ? "b" : "a";
+  const sec = u * T;
+  const seg = route.find((r) => sec >= r.t0 && sec < r.t1) || route[route.length - 1];
+  if (seg.kind === "stop") { const k = sec - seg.t0; return k >= LIFT_A && k <= LIFT_B ? "lift" : "stand"; }
+  if (seg.kind === "off") return "stand";
+  return Math.floor(sec / 0.16) % 2 ? "b" : "a";
 }
 function frameKeyframes() {
   const names = ["a", "b", "stand", "lift"];
   const out = Object.fromEntries(names.map((n) => [n, []]));
   let prev = null;
-  const N = 800;
+  const N = Math.ceil(T * 60);
   for (let i = 0; i <= N; i++) {
     const u = i / N, cur = poseAt(Math.min(u, 0.9999));
     if (cur !== prev || i === N) {
@@ -240,13 +286,14 @@ function dogSvg(theme) {
 
   let cells = "", reveal = "";
   weeks.forEach((w, x) => {
+    const pi = patches.findIndex((pt) => x >= pt.from && x <= pt.to);
     w.contributionDays.forEach((d) => {
       const cx = PAD + x * PITCH, cy = PAD + d.weekday * PITCH;
       cells += `<rect x="${cx}" y="${cy}" width="${CELL}" height="${CELL}" rx="2.5" fill="${th.grid[0]}"/>`;
       const lv = level(d.contributionCount);
-      if (lv > 0) {
-        const dist = Math.hypot(x - IMPACT_COL, (6 - d.weekday) * 1.2);
-        reveal += `<rect class="r" style="animation-delay:${(dist * 0.055).toFixed(2)}s" x="${cx}" y="${cy}" width="${CELL}" height="${CELL}" rx="2.5" fill="${th.grid[lv]}"/>`;
+      if (lv > 0 && pi >= 0) {
+        const dist = Math.hypot(x - patches[pi].col, (6 - d.weekday) * 1.1);
+        reveal += `<rect class="r rv${pi}" style="animation-delay:${(dist * 0.05).toFixed(2)}s" x="${cx}" y="${cy}" width="${CELL}" height="${CELL}" rx="2.5" fill="${th.grid[lv]}"/>`;
       }
     });
   });
@@ -267,18 +314,16 @@ function dogSvg(theme) {
 
   const css = `
 .dog{animation:walk ${T}s linear infinite}
-@keyframes walk{0%{transform:translate(${START_X}px,${TOP}px)}${pct(IN_END)},${pct(OUT_A)}{transform:translate(${STOP_X}px,${TOP}px)}${pct(OUT_B)},100%{transform:translate(${END_X}px,${TOP}px)}}
+@keyframes walk{${route.map((r) => `${at(r.t0)}{transform:translate(${r.x0.toFixed(1)}px,${TOP}px)}`).join("")}100%{transform:translate(${END_X}px,${TOP}px)}}
 ${frameKeyframes()}
 .ta{animation:ta .36s step-end infinite}.tb{animation:tb .36s step-end infinite}
 @keyframes ta{0%{opacity:1}50%{opacity:0}}@keyframes tb{0%{opacity:0}50%{opacity:1}}
 .stream{stroke-dasharray:1 1;animation:flow .2s steps(2) infinite,pee ${T}s linear infinite}
 @keyframes flow{to{stroke-dashoffset:-2}}
-@keyframes pee{0%,${pct(PEE_A + 0.015)}{opacity:0}${pct(PEE_A + 0.025)},${pct(PEE_B - 0.01)}{opacity:1}${pct(PEE_B)},100%{opacity:0}}
-.puddle{transform-box:fill-box;transform-origin:50% 50%;animation:puddle ${T}s ease-out infinite}
-@keyframes puddle{0%,${pct(PEE_A + 0.02)}{transform:scale(0);opacity:0}${pct(PEE_B)}{transform:scale(1);opacity:.8}${pct(0.8)}{transform:scale(1.05);opacity:.65}${pct(0.9)},100%{transform:scale(1.1);opacity:0}}
-.r{opacity:0;animation:reveal ${T}s ease-out infinite}
-@keyframes reveal{0%,${pct(PEE_A + 0.04)}{opacity:0}${pct(PEE_A + 0.07)},95%{opacity:1}99%,100%{opacity:0}}
-@media (prefers-reduced-motion:reduce){.dog,.f-a,.f-b,.f-stand,.f-lift,.ta,.tb,.stream,.puddle,.r{animation:none}.r,.f-stand{opacity:1}.dog{transform:translate(${STOP_X}px,${TOP}px)}}
+@keyframes pee{0%{opacity:0}${stops.map((r) => `${at(r.t0 + LIFT_A + 0.08)}{opacity:0}${at(r.t0 + LIFT_A + 0.12)},${at(r.t0 + LIFT_B - 0.12)}{opacity:1}${at(r.t0 + LIFT_B - 0.06)}{opacity:0}`).join("")}100%{opacity:0}}
+.r{opacity:0}
+${stops.map((r) => { const a = r.t0 + LIFT_A + 0.15; return `.rv${r.patch}{animation:rv${r.patch} ${T}s ease-out infinite}@keyframes rv${r.patch}{0%,${at(a)}{opacity:0}${at(a + 0.35)},${at(T - 0.9)}{opacity:1}${at(T - 0.25)},100%{opacity:0}}`; }).join("\n")}
+@media (prefers-reduced-motion:reduce){.dog,.f-a,.f-b,.f-stand,.f-lift,.ta,.tb,.stream,.r{animation:none!important}.r,.f-stand{opacity:1!important}.dog{transform:translate(${(patches[0]?.dogX ?? 40).toFixed(1)}px,${TOP}px)}}
 `;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
@@ -286,7 +331,6 @@ ${frameKeyframes()}
 <style>${css}</style>
 ${cells}
 ${reveal}
-<ellipse class="puddle" cx="${IMPACT_X}" cy="${GRID_BOTTOM - 6}" rx="${8 * PX}" ry="${2 * PX}" fill="${th.grid[4]}"/>
 ${dog}
 </svg>`;
 }
