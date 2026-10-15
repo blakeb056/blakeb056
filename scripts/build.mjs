@@ -70,37 +70,173 @@ const privatePct = total ? Math.round((cc.restrictedContributionsCount / total) 
 const weekly = weeks.map((w) => w.contributionDays.reduce((s, d) => s + d.contributionCount, 0));
 
 // ---- the dog ----------------------------------------------------------------
+// A pixel-art sprite of Blake's dog: a salt-and-pepper grey goldendoodle with
+// a tan beard. Drawn on a 40x30 pixel raster from simple shapes, coat colours
+// picked by a fixed hash so the curls look hand-dithered and never change
+// between builds. Legs and tail are frame-swapped (no smooth rotation), so he
+// moves like a game sprite.
 const CELL = 14, PITCH = 18, PAD = 20;
 const COLS = weeks.length;
 const GRID_W = COLS * PITCH - (PITCH - CELL);
 const GRID_BOTTOM = PAD + 7 * PITCH - (PITCH - CELL);
-const S = 2.0;                                   // dog scale (~108px tall: fits the 7 rows)
-const GROUND = GRID_BOTTOM - 2;                  // feet on the bottom row: he walks on the graph
 const W = GRID_W + PAD * 2, H = GRID_BOTTOM + PAD;
 const T = 16;
 
+const PX = 3.6;                                  // one sprite pixel, in SVG units
+const SPR_W = 40, SPR_H = 30;                    // sprite raster; feet on row 29
+const TOP = GRID_BOTTOM - SPR_H * PX + 2;        // he stands on the bottom row of the graph
+
 const STOP_X = PAD + Math.round(COLS * 0.55) * PITCH;
 const IN_END = 0.2, PEE_A = 0.24, PEE_B = 0.36, OUT_A = 0.4, OUT_B = 0.62;
-const START_X = -125, END_X = W + 10;
-const IMPACT_X = STOP_X - 24 * S;
+const START_X = -SPR_W * PX - 10, END_X = W + 10;
+const IMPACT_X = STOP_X - 3 * PX;
 const IMPACT_COL = Math.max(0, Math.min(COLS - 1, Math.round((IMPACT_X - PAD) / PITCH)));
 const pct = (u) => `${(u * 100).toFixed(3)}%`;
 
-function legKeyframes(name, phase) {
-  const walking = (u) => (u >= 0 && u <= IN_END) || (u >= OUT_A && u <= OUT_B);
-  const steps = [];
-  for (let i = 0; i <= 256; i++) {
-    const u = i / 256, s = u * T;
-    const a = walking(u) ? 24 * Math.sin((2 * Math.PI * s) / 0.46 + phase) : 0;
-    steps.push(`${pct(u)}{transform:rotate(${a.toFixed(1)}deg)}`);
+const PAL = {
+  K: "#141416", D: "#2b2b30", G: "#4a4b52", L: "#74767e", S: "#a3a5ad",
+  T: "#b07a4f", t: "#7d5233", N: "#050505", W: "#ffffff", P: "#ff7b9c",
+};
+function hash(x, y) {
+  let h = (x * 374761393 + y * 668265263) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967295;
+}
+const coat = (x, y, dark = 0) => {
+  const v = hash(x, y) - dark;
+  return v > 0.82 ? "S" : v > 0.55 ? "L" : v > 0.24 ? "G" : "D";
+};
+
+class Raster {
+  constructor() { this.px = new Map(); }
+  set(x, y, c) { if (x >= -8 && x < SPR_W + 4 && y >= 0 && y < SPR_H) this.px.set(`${x},${y}`, c); }
+  get(x, y) { return this.px.get(`${x},${y}`); }
+  ellipse(cx, cy, rx, ry, color) {
+    for (let y = Math.floor(cy - ry); y <= Math.ceil(cy + ry); y++)
+      for (let x = Math.floor(cx - rx); x <= Math.ceil(cx + rx); x++)
+        if (((x + 0.5 - cx) / rx) ** 2 + ((y + 0.5 - cy) / ry) ** 2 <= 1) this.set(x, y, color(x, y));
   }
-  return `@keyframes ${name}{${steps.join("")}}`;
+  circle(cx, cy, r, color) { this.ellipse(cx, cy, r, r, color); }
+  // A leg: 3px wide from the hip to the foot, plus a 5px paw.
+  leg(hx, hy, fx, fy, dark) {
+    const n = 16;
+    for (let i = 0; i <= n; i++) {
+      const x = Math.round(hx + ((fx - hx) * i) / n), y = Math.round(hy + ((fy - hy) * i) / n);
+      for (let k = 0; k < 3; k++) this.set(x + k, y, coat(x + k, y, dark));
+    }
+    for (let k = -1; k < 4; k++) this.set(Math.round(fx) + k, Math.round(fy), coat(fx + k, fy, dark + 0.25));
+  }
+  outline() {
+    const add = [];
+    for (const key of this.px.keys()) {
+      const [x, y] = key.split(",").map(Number);
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]])
+        if (!this.px.has(`${x + dx},${y + dy}`)) add.push([x + dx, y + dy]);
+    }
+    for (const [x, y] of add) this.set(x, y, "K");
+    return this;
+  }
+  // Horizontal runs of one colour → one <rect> each.
+  svg() {
+    const rows = new Map();
+    for (const [key, c] of this.px) {
+      const [x, y] = key.split(",").map(Number);
+      if (!rows.has(y)) rows.set(y, []);
+      rows.get(y).push([x, c]);
+    }
+    let out = "";
+    for (const [y, cells] of rows) {
+      cells.sort((a, b) => a[0] - b[0]);
+      let i = 0;
+      while (i < cells.length) {
+        let j = i;
+        while (j + 1 < cells.length && cells[j + 1][0] === cells[j][0] + 1 && cells[j + 1][1] === cells[i][1]) j++;
+        out += `<rect x="${cells[i][0]}" y="${y}" width="${j - i + 1}" height="1" fill="${PAL[cells[i][1]]}"/>`;
+        i = j + 1;
+      }
+    }
+    return out;
+  }
+}
+
+function spriteBody() {
+  const r = new Raster();
+  const c = (d = 0) => (x, y) => coat(x, y, d + (y >= 19 ? 0.18 : 0));
+  r.ellipse(16.5, 16, 11, 5.5, c());                                  // body
+  for (const [x, y] of [[9, 11], [13, 10], [17, 10], [21, 10], [25, 11]]) r.circle(x, y, 2.3, c());
+  r.circle(26, 15, 4, c());                                           // chest
+  for (let y = 9; y <= 16; y++) for (let x = 25; x <= 29; x++) r.set(x, y, coat(x, y));
+  r.circle(30, 8, 5.5, c(-0.12));                                    // head (a touch lighter than the coat)
+  for (const [x, y] of [[27, 3], [30, 2], [33, 3]]) r.circle(x, y, 2.6, c(-0.08)); // topknot
+  // Snout with the tan beard: top stays grey, the lower half goes tan.
+  r.ellipse(35.5, 10, 3.2, 2.4, (x, y) => (y >= 10 ? (hash(x, y) > 0.45 ? "T" : "t") : coat(x, y, -0.05)));
+  for (const [x, y] of [[34, 12.2], [36.2, 12.8]]) r.circle(x, y, 1.6, (x, y) => (hash(x, y) > 0.5 ? "T" : "t"));
+  r.outline();
+  // Long fluffy ear hanging past the cheek: darker than the head, with its own
+  // dark rim on the face side so it reads as a separate shape.
+  const EX = 28.6, EY = 12.2, ERX = 2.7, ERY = 6.2;
+  r.ellipse(EX, EY, ERX, ERY, (x, y) => coat(x, y, 0.42));
+  for (let y = Math.floor(EY - ERY) + 1; y <= Math.ceil(EY + ERY); y++) {
+    const half = ERX * Math.sqrt(Math.max(0, 1 - ((y + 0.5 - EY) / ERY) ** 2));
+    r.set(Math.round(EX + half), y, "K");                              // rim on the face side
+    if (y > EY + 2) r.set(Math.round(EX - half) - 1, y, "K");          // rim where it hangs past the neck
+  }
+  for (let x = Math.round(EX - ERX); x <= Math.round(EX + ERX); x++) r.set(x, Math.ceil(EY + ERY) + 1, "K");
+  for (const [x, y] of [[37, 8], [38, 8], [37, 9], [38, 9]]) r.set(x, y, "N"); // nose
+  for (const [x, y] of [[32, 7], [33, 7], [32, 8], [33, 8]]) r.set(x, y, "N"); // eye
+  r.set(33, 7, "W");
+  r.set(35, 11, "t"); r.set(36, 11, "t");                              // mouth
+  r.set(36, 12, "P"); r.set(37, 12, "P"); r.set(36, 13, "P");          // tongue
+  return r;
+}
+function spriteTail(lean) {
+  const r = new Raster();
+  const pts = lean ? [[6, 13], [6, 10], [7, 7], [8.5, 4.6]] : [[6, 13], [4, 10], [3, 7], [3.6, 4.4]];
+  for (const [x, y] of pts) r.circle(x, y, 1.9, (x, y) => coat(x, y, -0.05));
+  return r.outline();
+}
+// Leg poses: [rear far, rear near, front far, front near] foot x-offsets.
+const HIPS = [[8, 19], [11, 19], [21, 19], [24, 19]];
+function spriteLegs(offsets, near, liftRearNear = false) {
+  const r = new Raster();
+  HIPS.forEach(([hx, hy], i) => {
+    const isNear = i === 1 || i === 3;
+    if (isNear !== near) return;
+    if (liftRearNear && i === 1) r.leg(hx, hy, 3, 13, -0.12);
+    else r.leg(hx, hy, hx + offsets[i], 28, isNear ? 0 : 0.22);
+  });
+  return r.outline();
+}
+const POSES = {
+  a: [-2, 2, 2, -2],
+  b: [2, -2, -2, 2],
+  stand: [0, 0, 0, 0],
+};
+
+// Which leg frame shows when, over one loop.
+function poseAt(u) {
+  if (u >= PEE_A && u <= PEE_B) return "lift";
+  const walking = (u >= 0 && u <= IN_END) || (u >= OUT_A && u <= OUT_B);
+  if (!walking) return "stand";
+  return Math.floor((u * T) / 0.16) % 2 ? "b" : "a";
+}
+function frameKeyframes() {
+  const names = ["a", "b", "stand", "lift"];
+  const out = Object.fromEntries(names.map((n) => [n, []]));
+  let prev = null;
+  const N = 800;
+  for (let i = 0; i <= N; i++) {
+    const u = i / N, cur = poseAt(Math.min(u, 0.9999));
+    if (cur !== prev || i === N) {
+      for (const n of names) out[n].push(`${pct(u)}{opacity:${n === cur ? 1 : 0}}`);
+      prev = cur;
+    }
+  }
+  return names.map((n) => `@keyframes f-${n}{${out[n].join("")}}.f-${n}{animation:f-${n} ${T}s step-end infinite}`).join("\n");
 }
 
 function dogSvg(theme) {
   const th = THEMES[theme];
-  const coat = "#1e1e22", curl = "#34343b", ol = th.outline;
-  const olAttr = ol === "none" ? "" : ` stroke="${ol}" stroke-width="0.7"`;
 
   let cells = "", reveal = "";
   weeks.forEach((w, x) => {
@@ -115,79 +251,42 @@ function dogSvg(theme) {
     });
   });
 
-  const leg = (x, cls, fill) =>
-    `<g class="${cls}"><rect x="${x}" y="-16" width="6.6" height="15" rx="3.2" fill="${fill}"${olAttr}/><ellipse cx="${x + 3.6}" cy="-1.6" rx="4.4" ry="2.1" fill="${fill}"${olAttr}/></g>`;
-  const curls = (pts, r = 1.4) => pts.map(([x, y]) => `<path d="M${x - r} ${y} a${r} ${r} 0 1 1 ${r * 1.6} ${r * 0.9}" fill="none" stroke="${curl}" stroke-width="0.8" stroke-linecap="round" opacity="0.8"/>`).join("");
-  const fluff = (pts, r) => pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${coat}"/>`).join("");
+  const legs = (near) =>
+    ["a", "b", "stand"].map((p) => `<g class="f-${p}" opacity="0">${spriteLegs(POSES[p], near).svg()}</g>`).join("") +
+    `<g class="f-lift" opacity="0">${spriteLegs(POSES.stand, near, true).svg()}</g>`;
 
-  // Black goldendoodle, facing right, feet on y=0. Fluff = overlapping circles.
   const dog = `
-<g class="dog"><g transform="scale(${S})">
-  <path class="stream" d="M4 -18 Q -6 -22 -13 0" fill="none" stroke="#f5d33a" stroke-width="2" stroke-linecap="round" opacity="0"/>
-  <g class="tail">
-    <path d="M5 -27 Q -3 -33 -6 -43" fill="none" stroke="${coat}" stroke-width="6" stroke-linecap="round"${olAttr}/>
-    ${fluff([[-6, -43], [-3, -38], [-8, -39]], 3.4)}
-    ${curls([[-6, -42], [-3, -37]])}
-  </g>
-  ${leg(7, "lb", coat)}
-  ${leg(30, "la", coat)}
-  <ellipse cx="21" cy="-23" rx="19.5" ry="10.5" fill="${coat}"${olAttr}/>
-  ${fluff([[6, -29], [11, -32], [16, -33], [21, -33], [26, -33], [31, -32], [35, -29], [4, -22], [8, -15], [14, -13], [20, -12.5], [26, -13], [32, -15]], 4.2)}
-  ${curls([[9, -27], [15, -24], [21, -28], [27, -24], [32, -27], [12, -18], [19, -19], [26, -18], [17, -30], [24, -31]])}
-  <g class="lift">${leg(11, "la", coat)}</g>
-  ${leg(34, "lb", coat)}
-  <g class="head">
-    <rect x="33" y="-36" width="9" height="16" rx="4" fill="${coat}"/>
-    <rect x="33" y="-28" width="9" height="3.2" rx="1.2" fill="#e5484d"/>
-    <circle cx="42" cy="-39" r="10" fill="${coat}"${olAttr}/>
-    ${fluff([[36, -47], [41, -49.5], [46, -48], [49.5, -44]], 4)}
-    ${curls([[38, -46], [43, -48], [47, -45]], 1.4)}
-    <ellipse cx="50.5" cy="-35" rx="7.6" ry="5.4" fill="${coat}"${olAttr}/>
-    ${fluff([[48, -30.5], [52, -30], [55.5, -31.5]], 3.1)}
-    <ellipse cx="57.6" cy="-37.2" rx="2.6" ry="2.1" fill="#050505"/>
-    <circle cx="46" cy="-41.5" r="1.9" fill="#050505"/>
-    <circle cx="46.6" cy="-42.1" r="0.65" fill="#ffffff"/>
-    <ellipse cx="52.5" cy="-27.6" rx="2" ry="2.9" fill="#ff7b9c"/>
-    <g class="ear">
-      <ellipse cx="36.5" cy="-34" rx="5" ry="10" fill="${coat}"${olAttr}/>
-      ${fluff([[35, -26], [38.5, -25.5], [35.5, -30]], 3.2)}
-      ${curls([[36.5, -36], [36, -30], [37.5, -27]], 1.3)}
-    </g>
-  </g>
+<g class="dog"><g transform="scale(${PX})" shape-rendering="crispEdges">
+  <path class="stream" d="M4.5 15.5 Q 0.5 16 -2 29" fill="none" stroke="#f5d33a" stroke-width="1" opacity="0"/>
+  ${legs(false)}
+  <g class="ta">${spriteTail(false).svg()}</g>
+  <g class="tb" opacity="0">${spriteTail(true).svg()}</g>
+  ${spriteBody().svg()}
+  ${legs(true)}
 </g></g>`;
 
   const css = `
 .dog{animation:walk ${T}s linear infinite}
-@keyframes walk{0%{transform:translate(${START_X}px,${GROUND}px)}${pct(IN_END)},${pct(OUT_A)}{transform:translate(${STOP_X}px,${GROUND}px)}${pct(OUT_B)},100%{transform:translate(${END_X}px,${GROUND}px)}}
-.la,.lb,.lift,.tail,.head,.ear{transform-box:fill-box}
-.la{transform-origin:50% 0;animation:la ${T}s linear infinite}
-.lb{transform-origin:50% 0;animation:lb ${T}s linear infinite}
-${legKeyframes("la", 0)}
-${legKeyframes("lb", Math.PI)}
-.lift{transform-origin:50% 0;animation:lift ${T}s ease-in-out infinite}
-@keyframes lift{0%,${pct(PEE_A - 0.015)}{transform:rotate(0)}${pct(PEE_A + 0.01)},${pct(PEE_B)}{transform:rotate(68deg)}${pct(PEE_B + 0.02)},100%{transform:rotate(0)}}
-.tail{transform-origin:85% 100%;animation:wag .3s ease-in-out infinite alternate}
-@keyframes wag{from{transform:rotate(-20deg)}to{transform:rotate(24deg)}}
-.ear{transform-origin:50% 10%;animation:flop .46s ease-in-out infinite alternate}
-@keyframes flop{from{transform:rotate(-6deg)}to{transform:rotate(7deg)}}
-.head{transform-origin:15% 90%;animation:look ${T}s ease-in-out infinite}
-@keyframes look{0%,${pct(PEE_A)}{transform:rotate(0)}${pct(PEE_A + 0.03)},${pct(PEE_B)}{transform:rotate(-12deg)}${pct(PEE_B + 0.03)},100%{transform:rotate(0)}}
-.stream{stroke-dasharray:2.4 2;animation:flow .22s linear infinite,pee ${T}s linear infinite}
-@keyframes flow{to{stroke-dashoffset:-8.8}}
+@keyframes walk{0%{transform:translate(${START_X}px,${TOP}px)}${pct(IN_END)},${pct(OUT_A)}{transform:translate(${STOP_X}px,${TOP}px)}${pct(OUT_B)},100%{transform:translate(${END_X}px,${TOP}px)}}
+${frameKeyframes()}
+.ta{animation:ta .36s step-end infinite}.tb{animation:tb .36s step-end infinite}
+@keyframes ta{0%{opacity:1}50%{opacity:0}}@keyframes tb{0%{opacity:0}50%{opacity:1}}
+.stream{stroke-dasharray:1 1;animation:flow .2s steps(2) infinite,pee ${T}s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-2}}
 @keyframes pee{0%,${pct(PEE_A + 0.015)}{opacity:0}${pct(PEE_A + 0.025)},${pct(PEE_B - 0.01)}{opacity:1}${pct(PEE_B)},100%{opacity:0}}
 .puddle{transform-box:fill-box;transform-origin:50% 50%;animation:puddle ${T}s ease-out infinite}
 @keyframes puddle{0%,${pct(PEE_A + 0.02)}{transform:scale(0);opacity:0}${pct(PEE_B)}{transform:scale(1);opacity:.8}${pct(0.8)}{transform:scale(1.05);opacity:.65}${pct(0.9)},100%{transform:scale(1.1);opacity:0}}
 .r{opacity:0;animation:reveal ${T}s ease-out infinite}
 @keyframes reveal{0%,${pct(PEE_A + 0.04)}{opacity:0}${pct(PEE_A + 0.07)},95%{opacity:1}99%,100%{opacity:0}}
-@media (prefers-reduced-motion:reduce){.dog,.la,.lb,.lift,.tail,.head,.ear,.stream,.puddle,.r{animation:none}.r{opacity:1}.dog{transform:translate(${STOP_X}px,${GROUND}px)}}
+@media (prefers-reduced-motion:reduce){.dog,.f-a,.f-b,.f-stand,.f-lift,.ta,.tb,.stream,.puddle,.r{animation:none}.r,.f-stand{opacity:1}.dog{transform:translate(${STOP_X}px,${TOP}px)}}
 `;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-<title>${esc(LOGIN)}'s contribution graph, watered by a black goldendoodle</title>
+<title>${esc(LOGIN)}'s contribution graph, watered by a pixel goldendoodle</title>
 <style>${css}</style>
 ${cells}
 ${reveal}
-<ellipse class="puddle" cx="${IMPACT_X}" cy="${GROUND - 5}" rx="${15 * S}" ry="${3.4 * S}" fill="${th.grid[4]}"/>
+<ellipse class="puddle" cx="${IMPACT_X}" cy="${GRID_BOTTOM - 6}" rx="${8 * PX}" ry="${2 * PX}" fill="${th.grid[4]}"/>
 ${dog}
 </svg>`;
 }
