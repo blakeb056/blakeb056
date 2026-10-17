@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="250" viewBox="0 0 900 250" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+<title>blakeb056: 4,891 contributions in the last year</title>
+<defs>
+  <linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#0050ff"/><stop offset="1" stop-color="#7a2cf0"/></linearGradient>
+  <linearGradient id="fill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0050ff" stop-opacity=".32"/><stop offset="1" stop-color="#7a2cf0" stop-opacity="0"/></linearGradient>
+  <clipPath id="draw"><rect class="wipe" x="0" y="0" width="900" height="250"/></clipPath>
+</defs>
+<style>
+.wipe{transform-origin:0 0;animation:wipe 2.2s cubic-bezier(.2,.7,.2,1) both}
+@keyframes wipe{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.pulse{transform-box:fill-box;transform-origin:50% 50%;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.35}50%{transform:scale(2.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){.wipe,.pulse{animation:none}}
+</style>
+<text x="24" y="58" font-size="52" font-weight="800" fill="url(#g)" letter-spacing="-1">4,891</text>
+<text x="24" y="84" font-size="15" fill="#1f2328" font-weight="600">contributions in the last year</text>
+<text x="256" y="84" font-size="13" fill="#59636e">· 75% of it in private repos</text>
+<line x1="24" x2="544" y1="140" y2="140" stroke="#d1d9e0" stroke-dasharray="2 4"/><line x1="24" x2="544" y1="168" y2="168" stroke="#d1d9e0" stroke-dasharray="2 4"/><line x1="24" x2="544" y1="196" y2="196" stroke="#d1d9e0" stroke-dasharray="2 4"/>
+<line x1="24" x2="544" y1="224" y2="224" stroke="#d1d9e0"/>
+<g clip-path="url(#draw)">
+  <path d="M24.0 224.0 L34.0 224.0 L44.0 224.0 L54.0 224.0 L64.0 224.0 L74.0 224.0 L84.0 224.0 L94.0 224.0 L104.0 224.0 L114.0 224.0 L124.0 224.0 L134.0 224.0 L144.0 224.0 L154.0 224.0 L164.0 224.0 L174.0 224.0 L184.0 224.0 L194.0 224.0 L204.0 224.0 L214.0 224.0 L224.0 224.0 L234.0 224.0 L244.0 224.0 L254.0 221.4 L264.0 224.0 L274.0 224.0 L284.0 224.0 L294.0 224.0 L304.0 224.0 L314.0 224.0 L324.0 224.0 L334.0 224.0 L344.0 224.0 L354.0 214.4 L364.0 209.3 L374.0 203.6 L384.0 222.4 L394.0 224.0 L404.0 223.9 L414.0 220.2 L424.0 224.0 L434.0 223.5 L444.0 224.0 L454.0 223.6 L464.0 178.4 L474.0 192.1 L484.0 192.7 L494.0 174.3 L504.0 214.4 L514.0 169.4 L524.0 121.9 L534.0 112.0 L544.0 114.3 L544 224 L24 224 Z" fill="url(#fill)"/>
+  <path d="M24.0 224.0 L34.0 224.0 L44.0 224.0 L54.0 224.0 L64.0 224.0 L74.0 224.0 L84.0 224.0 L94.0 224.0 L104.0 224.0 L114.0 224.0 L124.0 224.0 L134.0 224.0 L144.0 224.0 L154.0 224.0 L164.0 224.0 L174.0 224.0 L184.0 224.0 L194.0 224.0 L204.0 224.0 L214.0 224.0 L224.0 224.0 L234.0 224.0 L244.0 224.0 L254.0 221.4 L264.0 224.0 L274.0 224.0 L284.0 224.0 L294.0 224.0 L304.0 224.0 L314.0 224.0 L324.0 224.0 L334.0 224.0 L344.0 224.0 L354.0 214.4 L364.0 209.3 L374.0 203.6 L384.0 222.4 L394.0 224.0 L404.0 223.9 L414.0 220.2 L424.0 224.0 L434.0 223.5 L444.0 224.0 L454.0 223.6 L464.0 178.4 L474.0 192.1 L484.0 192.7 L494.0 174.3 L504.0 214.4 L514.0 169.4 L524.0 121.9 L534.0 112.0 L544.0 114.3" fill="none" stroke="url(#g)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle class="pulse" cx="534.0" cy="112.0" r="5" fill="#7a2cf0"/>
+  <circle cx="534.0" cy="112.0" r="4.5" fill="#7a2cf0" stroke="#ffffff" stroke-width="2"/>
+  <text x="474.0" y="100.0" font-size="11.5" fill="#1f2328" font-weight="600" text-anchor="middle">913 in one week</text>
+</g>
+<text x="54.0" y="242" font-size="11" fill="#59636e" text-anchor="middle">Nov</text><text x="104.0" y="242" font-size="11" fill="#59636e" text-anchor="middle">Dec</text><text x="144.0" y="242" font-size="11" fill="#59636e" text-anchor="middle">Jan</text><text x="184.0" y="242" font-size="11" fill="#59636e" text-anchor="middle">Feb</text><text x="224.0" y="242" font-size="11" fill="#59636e" text-anchor="middle">Mar</text><text x="274.0" y="242" font-size="11" fill="#59636e" text-anchor="middle">Apr</text><text x="314.0" y="242" font-size="11" fill="#59636e" text-anchor="middle">May</text><text x="364.0" y="242" font-size="11" fill="#59636e" text-anchor="middle">Jun</text><text x="404.0" y="242" font-size="11" fill="#59636e" text-anchor="middle">Jul</text><text x="444.0" y="242" font-size="11" fill="#59636e" text-anchor="middle">Aug</text><text x="494.0" y="242" font-size="11" fill="#59636e" text-anchor="middle">Sep</text>
+<line x1="568" x2="568" y1="34" y2="218" stroke="#d1d9e0"/>
+<text x="596" y="76" font-size="40" font-weight="800" fill="url(#g)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">51</text>
+<text x="596" y="98" font-size="12.5" fill="#59636e">day streak, going now</text><text x="748" y="76" font-size="40" font-weight="800" fill="url(#g)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">51</text>
+<text x="748" y="98" font-size="12.5" fill="#59636e">longest streak, days</text><text x="596" y="172" font-size="40" font-weight="800" fill="url(#g)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">303</text>
+<text x="596" y="194" font-size="12.5" fill="#59636e">best day · Oct 5</text><text x="748" y="172" font-size="40" font-weight="800" fill="url(#g)" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">296</text>
+<text x="748" y="194" font-size="12.5" fill="#59636e">pull requests</text>
+</svg>
