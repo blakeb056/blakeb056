@@ -29,7 +29,7 @@
 <a href="https://distress-globe.vercel.app"><picture><source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/distress-dark.svg?v=5"><img width="49%" alt="Distress: Live police, fire and 911 dispatch from public agency feeds, on one globe." src="https://raw.githubusercontent.com/blakeb056/blakeb056/output/cards/distress.svg?v=5"></picture></a>
 </p>
 
-<sub>Source: <a href="https://github.com/blakeb056/six-degrees">Sixgree</a> · <a href="https://github.com/sponskip/sponskip">Sponskip</a></sub>
+<sub>Download: <a href="https://sixgree.com/download/">Sixgree</a> · Source: <a href="https://github.com/sponskip/sponskip">Sponskip</a></sub>
 
 ### 👻 AR
 
